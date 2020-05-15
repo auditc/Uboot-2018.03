@@ -502,7 +502,6 @@ static void save_env(struct fastboot_ptentry *ptn,
 	env_set(var, val);
 	env_save();
 }
-#if 0
 
 /* When save = 0, just parse.  The input is unchanged
    When save = 1, parse and do the save.  The input is changed */
@@ -671,8 +670,6 @@ static int parse_env(void *ptn, char *err_string, int save, int debug)
 
 	return ret;
 }
-#endif
-#if 0
 static int saveenv_to_ptn(struct fastboot_ptentry *ptn, char *err_string)
 {
 	int ret = 1;
@@ -692,7 +689,6 @@ static int saveenv_to_ptn(struct fastboot_ptentry *ptn, char *err_string)
 	}
 	return ret;
 }
-#endif
 static int get_block_size(void);
 #ifdef CONFIG_FLASH_MCUFIRMWARE_SUPPORT
 static void process_flash_sf(const char *cmdbuf)
@@ -794,7 +790,7 @@ U_BOOT_CMD(
 );
 #endif
 #endif /* CONFIG_FLASH_MCUFIRMWARE_SUPPORT */
-#if 0
+#if 1
 static ulong bootloader_mmc_offset(void)
 {
 	if (is_imx8m() || (is_imx8() && is_soc_rev(CHIP_REV_A)))

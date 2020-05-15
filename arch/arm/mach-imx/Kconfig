@@ -128,10 +128,10 @@ config CMD_HDMIDETECT
 	  This enables the 'hdmidet' command which detects if an HDMI monitor
 	  is connected.
 
-config CMD_NANDBCB
+config CMD_NANDBCD
 	bool "i.MX NAND Boot Control Block(BCB) command"
-	depends on NAND && CMD_MTDPARTS
-	default y if ARCH_MX6 && NAND_MXS
+	depends on MTD_UBI && BCH
+	default y if ARCH_MX6
 	help
 	  Unlike normal 'nand write/erase' commands, this command update
 	  Boot Control Block(BCB) for i.MX6 platform NAND IP's.
