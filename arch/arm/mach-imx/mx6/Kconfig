@@ -480,6 +480,13 @@ config TARGET_MX6ULL_14X14_EVK
 	select DM
 	select DM_THERMAL
 
+config TARGET_100ASK_IMX6ULL
+         bool "Support 100ask_imx6ull"
+         select BOARD_LATE_INIT
+         select MX6ULL
+         select DM
+         select DM_THERMAL
+
 config TARGET_NITROGEN6X
 	bool "nitrogen6x"
 	imply USB_HOST_ETHER
@@ -672,5 +679,5 @@ source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
-
+source "board/100ask/100ask_imx6ull/Kconfig"
 endif
