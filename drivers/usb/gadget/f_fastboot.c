@@ -3237,8 +3237,6 @@ static int get_single_var(char *cmd, char *response)
 		} else {
 			strncat(response, fb_part->fstype, chars_left);
 		}
-	} else if (!strcmp_l1("BoardName", cmd)) {
-		strncat(response,BOARD_NAME, chars_left);
 	} else if (!strcmp_l1("version-bootloader", cmd) ||
 		!strcmp_l1("bootloader-version", cmd)) {
 		strncat(response, U_BOOT_VERSION, chars_left);
