@@ -411,13 +411,7 @@ void do_enable_parallel_lcd(struct display_info_t const *dev)
 	enable_lcdif_clock(dev->bus, 1);
 
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
-
-	/* Reset the LCD */
-	gpio_request(IMX_GPIO_NR(5, 9), "lcd reset");
-	gpio_direction_output(IMX_GPIO_NR(5, 9) , 0);
-	udelay(500);
-	gpio_direction_output(IMX_GPIO_NR(5, 9) , 1);
-
+	
 	/* Set Brightness to high */
 	gpio_request(IMX_GPIO_NR(1, 8), "backlight");
 	gpio_direction_output(IMX_GPIO_NR(1, 8) , 1);
@@ -430,16 +424,16 @@ struct display_info_t const displays[] = {{
 	.detect = NULL,
 	.enable	= do_enable_parallel_lcd,
 	.mode	= {
-		.name			= "TFT43AB",
-		.xres           = 480,
-		.yres           = 272,
-		.pixclock       = 108695,
-		.left_margin    = 8,
-		.right_margin   = 4,
-		.upper_margin   = 2,
-		.lower_margin   = 4,
-		.hsync_len      = 41,
-		.vsync_len      = 10,
+		.name		= "TFT7016",
+		.xres           = 1024,
+		.yres           = 600,
+		.pixclock       = 19531,
+		.left_margin    = 140,
+		.right_margin   = 160,
+		.upper_margin   = 20,
+		.lower_margin   = 12,
+		.hsync_len      = 20,
+		.vsync_len      = 3,
 		.sync           = 0,
 		.vmode          = FB_VMODE_NONINTERLACED
 } } };
@@ -535,10 +529,10 @@ int checkboard(void)
 
 #ifdef CONFIG_FSL_FASTBOOT
 /* Use S3 button for fastboot key */
-#define GPIO_USER_KEY IMX_GPIO_NR(5, 0)
+#define GPIO_USER_KEY IMX_GPIO_NR(5, 1)
 
 iomux_v3_cfg_t const user_key_pads[] = {
-	(MX6_PAD_SNVS_TAMPER0__GPIO5_IO00 | MUX_PAD_CTRL(BUTTON_PAD_CTRL)),
+	(MX6_PAD_SNVS_TAMPER1__GPIO5_IO01 | MUX_PAD_CTRL(BUTTON_PAD_CTRL)),
 };
 
 int is_fastboot_key_pressing(void)

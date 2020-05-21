@@ -73,7 +73,7 @@
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR  0x08
 #endif
 
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
+#define CONFIG_SYS_MMC_IMG_LOAD_PART	2
 #define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
@@ -83,7 +83,6 @@
 
 
 #ifdef CONFIG_NAND_BOOT
-#define BOARD_NAME "100ASK_MYIR_IMX6ULL_N"
 #define  CONFIG_CMD_UBI
 #define  CONFIG_CMD_UBIFS
 #define MFG_NAND_PARTITION "mtdparts=gpmi-nand:5m(boot),1m(env),8m(kernel),2m(dtb),180m(rootfs),-(userdate)"
@@ -105,6 +104,8 @@
 
 #if defined(CONFIG_NAND_BOOT)
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"ethaddr=00:01:1f:2d:3e:4d\0" \
+	"eth1addr=00:01:3f:2d:3e:4d\0" \
 	"panel=TFT43AB\0" \
 	"fdt_addr=0x83000000\0" \
 	"fdt_high=0xffffffff\0"	  \
@@ -123,20 +124,22 @@
 
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_MFG_ENV_SETTINGS \
 	TEE_ENV \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
+	"bootdir=/boot\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=undefined\0" \
+	"fdt_file=100ask_myir_imx6ull_mini.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"tee_addr=0x84000000\0" \
-	"tee_file=undefined\0" \
+	"tee_file=uTee-6ullevk\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"panel=TFT43AB\0" \
+    "ethaddr=00:01:1f:2d:3e:4d\0" \
+    "eth1addr=00:01:3f:2d:3e:4d\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
@@ -148,8 +151,8 @@
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadimage=ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${bootdir}/${image}\0" \
+	"loadfdt=ext2load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${bootdir}/${fdt_file}\0" \
 	"loadtee=fatload mmc ${mmcdev}:${mmcpart} ${tee_addr} ${tee_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
@@ -175,55 +178,19 @@
 		"root=/dev/nfs " \
 	"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 		"netboot=echo Booting from net ...; " \
-		"${usb_net_cmd}; " \
 		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
 			"setenv get_cmd tftp; " \
-		"fi; " \
 		"${get_cmd} ${image}; " \
-		"if test ${tee} = yes; then " \
-			"${get_cmd} ${tee_addr} ${tee_file}; " \
 			"${get_cmd} ${fdt_addr} ${fdt_file}; " \
-			"bootm ${tee_addr} - ${fdt_addr}; " \
-		"else " \
-			"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-				"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-					"bootz ${loadaddr} - ${fdt_addr}; " \
-				"else " \
-					"if test ${boot_fdt} = try; then " \
-						"bootz; " \
-					"else " \
-						"echo WARN: Cannot load the DT; " \
-					"fi; " \
-				"fi; " \
-			"else " \
-				"bootz; " \
-			"fi; " \
-		"fi;\0" \
+		 " bootz ${loadaddr} - ${fdt_addr};\0"\
 		"findfdt="\
 			"if test $fdt_file = undefined; then " \
-				"if test $board_name = ULZ-EVK && test $board_rev = 14X14; then " \
-					"setenv fdt_file imx6ulz-14x14-evk.dtb; fi; " \
 				"if test $board_name = EVK && test $board_rev = 9X9; then " \
 					"setenv fdt_file imx6ull-9x9-evk.dtb; fi; " \
 				"if test $board_name = EVK && test $board_rev = 14X14; then " \
-					"setenv fdt_file imx6ull-14x14-evk.dtb; fi; " \
+					"setenv fdt_file 100ask_myir_imx6ull_mini.dtb; fi; " \
 				"if test $fdt_file = undefined; then " \
-					"echo WARNING: Could not determine dtb to use; " \
-				"fi; " \
-			"fi;\0" \
-		"findtee="\
-			"if test $tee_file = undefined; then " \
-				"if test $board_name = ULZ-EVK && test $board_rev = 14X14; then " \
-					"setenv tee_file uTee-6ulzevk; fi; " \
-				"if test $board_name = EVK && test $board_rev = 9X9; then " \
-					"setenv tee_file uTee-6ullevk; fi; " \
-				"if test $board_name = EVK && test $board_rev = 14X14; then " \
-					"setenv tee_file uTee-6ullevk; fi; " \
-				"if test $tee_file = undefined; then " \
-					"echo WARNING: Could not determine tee to use; " \
+					"setenv fdt_file imx6ull-14x14-alpha.dtb; " \
 				"fi; " \
 			"fi;\0" \
 

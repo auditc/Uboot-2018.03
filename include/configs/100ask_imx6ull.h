@@ -15,6 +15,7 @@
 #include <asm/mach-imx/gpio.h>
 #include "imx_env.h"
 
+
 #ifdef CONFIG_SECURE_BOOT
 #ifndef CONFIG_CSF_SIZE
 #define CONFIG_CSF_SIZE 0x4000
@@ -28,7 +29,7 @@
 #define PHYS_SDRAM_SIZE		SZ_256M
 #define BOOTARGS_CMA_SIZE   "cma=96M "
 #else
-#define PHYS_SDRAM_SIZE		SZ_256M
+#define PHYS_SDRAM_SIZE		SZ_512M
 #define BOOTARGS_CMA_SIZE   ""
 /* DCDC used on 14x14 EVK, no PMIC */
 #undef CONFIG_LDO_BYPASS_CHECK
@@ -73,7 +74,7 @@
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR  0x08
 #endif
 
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
+#define CONFIG_SYS_MMC_IMG_LOAD_PART	2
 #define BOARD_NAME "100ASK_IMX6ULL"
 
 #define CONFIG_MTD_DEVICE
@@ -106,7 +107,7 @@
 
 #if defined(CONFIG_NAND_BOOT)
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"panel=TFT43AB\0" \
+	"panel=TFT7016\0" \
 	"fdt_addr=0x83000000\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"console=ttymxc0\0" \
@@ -124,20 +125,22 @@
 
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_MFG_ENV_SETTINGS \
 	TEE_ENV \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
+	"bootdir=/boot\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=undefined\0" \
+	"fdt_file=100ask_imx6ull-14x14.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"tee_addr=0x84000000\0" \
-	"tee_file=undefined\0" \
+	"tee_file=uTee-6ullevk\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"panel=TFT43AB\0" \
+	"panel=TFT7016\0" \
+    "ethaddr=00:01:1f:2d:3e:4d\0" \
+    "eth1addr=00:01:3f:2d:3e:4d\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
@@ -149,8 +152,8 @@
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadimage=ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${bootdir}/${image}\0" \
+	"loadfdt=ext2load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${bootdir}/${fdt_file}\0" \
 	"loadtee=fatload mmc ${mmcdev}:${mmcpart} ${tee_addr} ${tee_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
@@ -176,55 +179,19 @@
 		"root=/dev/nfs " \
 	"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 		"netboot=echo Booting from net ...; " \
-		"${usb_net_cmd}; " \
 		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
 			"setenv get_cmd tftp; " \
-		"fi; " \
 		"${get_cmd} ${image}; " \
-		"if test ${tee} = yes; then " \
-			"${get_cmd} ${tee_addr} ${tee_file}; " \
 			"${get_cmd} ${fdt_addr} ${fdt_file}; " \
-			"bootm ${tee_addr} - ${fdt_addr}; " \
-		"else " \
-			"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-				"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-					"bootz ${loadaddr} - ${fdt_addr}; " \
-				"else " \
-					"if test ${boot_fdt} = try; then " \
-						"bootz; " \
-					"else " \
-						"echo WARN: Cannot load the DT; " \
-					"fi; " \
-				"fi; " \
-			"else " \
-				"bootz; " \
-			"fi; " \
-		"fi;\0" \
+		 " bootz ${loadaddr} - ${fdt_addr};\0"\
 		"findfdt="\
 			"if test $fdt_file = undefined; then " \
-				"if test $board_name = ULZ-EVK && test $board_rev = 14X14; then " \
-					"setenv fdt_file imx6ulz-14x14-evk.dtb; fi; " \
 				"if test $board_name = EVK && test $board_rev = 9X9; then " \
 					"setenv fdt_file imx6ull-9x9-evk.dtb; fi; " \
 				"if test $board_name = EVK && test $board_rev = 14X14; then " \
 					"setenv fdt_file imx6ull-14x14-evk.dtb; fi; " \
 				"if test $fdt_file = undefined; then " \
-					"echo WARNING: Could not determine dtb to use; " \
-				"fi; " \
-			"fi;\0" \
-		"findtee="\
-			"if test $tee_file = undefined; then " \
-				"if test $board_name = ULZ-EVK && test $board_rev = 14X14; then " \
-					"setenv tee_file uTee-6ulzevk; fi; " \
-				"if test $board_name = EVK && test $board_rev = 9X9; then " \
-					"setenv tee_file uTee-6ullevk; fi; " \
-				"if test $board_name = EVK && test $board_rev = 14X14; then " \
-					"setenv tee_file uTee-6ullevk; fi; " \
-				"if test $tee_file = undefined; then " \
-					"echo WARNING: Could not determine tee to use; " \
+					"setenv fdt_file imx6ull-14x14-alpha.dtb; " \
 				"fi; " \
 			"fi;\0" \
 
@@ -324,7 +291,9 @@
 
 #ifdef CONFIG_FEC_MXC
 #define CONFIG_MII
-#define CONFIG_FEC_ENET_DEV		0
+#define ET_DEBUG
+#define MII_DEBUG
+#define CONFIG_FEC_ENET_DEV		1
 
 #if (CONFIG_FEC_ENET_DEV == 0)
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -345,6 +314,7 @@
 #define CONFIG_ETHPRIME			"FEC1"
 #endif
 #endif
+#define CONFIG_LIB_RAND
 #define CONFIG_FEC_MXC_MDIO_BASE ENET2_BASE_ADDR
 #endif
 
@@ -353,7 +323,7 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
+#define CONFIG_BMP_24BPP
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_VIDEO_SKIP
@@ -361,11 +331,6 @@
 
 #define CONFIG_MODULE_FUSE
 #define CONFIG_OF_SYSTEM_SETUP
-
-
-#if defined(CONFIG_FASTBOOT_STORAGE_NAND)
-#define ANDROID_FASTBOOT_NAND_PARTS "16m@64m(boot) 16m@80m(recovery) 810m@96m(android_root)ubifs"
-#endif
 
 
 #endif

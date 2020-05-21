@@ -74,8 +74,6 @@
 #endif
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-#define BOARD_NAME "100ASK_IMX6ULL"
-
 #define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
@@ -85,6 +83,7 @@
 
 
 #ifdef CONFIG_NAND_BOOT
+#define BOARD_NAME "100ASK_MYIR_IMX6ULL_N"
 #define  CONFIG_CMD_UBI
 #define  CONFIG_CMD_UBIFS
 #define MFG_NAND_PARTITION "mtdparts=gpmi-nand:5m(boot),1m(env),8m(kernel),2m(dtb),180m(rootfs),-(userdate)"
