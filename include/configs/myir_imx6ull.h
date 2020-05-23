@@ -106,7 +106,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"ethaddr=00:01:1f:2d:3e:4d\0" \
 	"eth1addr=00:01:3f:2d:3e:4d\0" \
-	"panel=TFT43AB\0" \
+	"panel=TFT7016\0" \
 	"fdt_addr=0x83000000\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"console=ttymxc0\0" \
@@ -137,7 +137,7 @@
 	"tee_file=uTee-6ullevk\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"panel=TFT43AB\0" \
+	"panel=TFT7016\0" \
     "ethaddr=00:01:1f:2d:3e:4d\0" \
     "eth1addr=00:01:3f:2d:3e:4d\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
@@ -231,9 +231,9 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* USDHC2 */
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* USDHC2 */
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
+#define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC2 */
 
 #define CONFIG_IMX_THERMAL
 
