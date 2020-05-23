@@ -138,13 +138,13 @@
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"panel=TFT7016\0" \
-    "ethaddr=00:01:1f:2d:3e:4d\0" \
-    "eth1addr=00:01:3f:2d:3e:4d\0" \
+	"ethaddr=00:01:1f:2d:3e:4d\0" \
+	"eth1addr=00:01:3f:2d:3e:4d\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw  mem=256M\0" \
+	"mmcroot=" CONFIG_MMCROOT "rootwait rw \0" \
 	"mmcautodetect=yes\0" \
-	"mmcargs=setenv bootargs console=${console},${baudrate} " \
+	"mmcargs=setenv bootargs console=${console},${baudrate} mem=256m " \
 		BOOTARGS_CMA_SIZE \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
