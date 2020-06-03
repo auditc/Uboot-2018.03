@@ -113,7 +113,7 @@
 	"devnum=0\0" \
 	"bootargs=console=ttymxc0,115200 ubi.mtd=4 "  \
 		"root=ubi0:rootfs rootfstype=ubifs mem=256m "		     \
-		BOOTARGS_CMA_SIZE \
+		BOOTARGS_CMA_SIZE MFG_NAND_PARTITION \
 		"\0" \
 	"bootcmd=nand read ${loadaddr} 0x600000 0x800000;"\
 		"nand read ${fdt_addr} 0xe00000 0x200000;"\
