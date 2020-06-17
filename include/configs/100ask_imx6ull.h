@@ -113,7 +113,7 @@
 	"console=ttymxc0\0" \
 	"devnum=0\0" \
 	"bootargs=console=ttymxc0,115200 ubi.mtd=4 "  \
-		"root=ubi0:rootfs rootfstype=ubifs mem=256m "		     \
+		"root=ubi0:rootfs rootfstype=ubifs "		     \
 		BOOTARGS_CMA_SIZE \
 		"\0" \
 	"bootcmd=nand read ${loadaddr} 0x600000 0x800000;"\
@@ -125,37 +125,36 @@
 
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	TEE_ENV \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
 	"bootdir=/boot\0" \
+	"splashpos=212,0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=100ask_imx6ull-14x14.dtb\0" \
 	"fdt_addr=0x83000000\0" \
-	"tee_addr=0x84000000\0" \
-	"tee_file=uTee-6ullevk\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"panel=TFT7016\0" \
-    "ethaddr=00:01:1f:2d:3e:4d\0" \
-    "eth1addr=00:01:3f:2d:3e:4d\0" \
+	"ethaddr=00:01:1f:2d:3e:4d\0" \
+	"eth1addr=00:01:3f:2d:3e:4d\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"mmcroot=" CONFIG_MMCROOT "  rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		BOOTARGS_CMA_SIZE \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr}  ${bootdir}/${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${bootdir}/${image}\0" \
 	"loadfdt=ext2load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${bootdir}/${fdt_file}\0" \
 	"loadtee=fatload mmc ${mmcdev}:${mmcpart} ${tee_addr} ${tee_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+		"saveenv;" \
 		"run mmcargs; " \
 		"if test ${tee} = yes; then " \
 			"run loadfdt; run loadtee; bootm ${tee_addr} - ${fdt_addr}; " \
@@ -197,7 +196,6 @@
 
 #define CONFIG_BOOTCOMMAND \
 	   "run findfdt;" \
-	   "run findtee;" \
 	   "mmc dev ${mmcdev};" \
 	   "mmc dev ${mmcdev}; if mmc rescan; then " \
 		   "if run loadbootscript; then " \
@@ -232,9 +230,16 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* USDHC2 */
+
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
+
+#ifdef CONFIG_SD_BOOT
+#define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* USDHC1 */
+#else
+#define CONFIG_MMCROOT			"/dev/mmcblk1p2"
+#define CONFIG_SYS_MMC_ENV_DEV		1	/* USDHC2 */
+#endif
 
 #define CONFIG_IMX_THERMAL
 
@@ -269,7 +274,7 @@
 
 #define CONFIG_ENV_SIZE			SZ_8K
 #if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
+#define CONFIG_ENV_OFFSET		(32 * SZ_64K)
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
@@ -318,6 +323,8 @@
 #define CONFIG_FEC_MXC_MDIO_BASE ENET2_BASE_ADDR
 #endif
 
+#if 0
+
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
@@ -328,6 +335,13 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_VIDEO_SKIP
 #endif
+#endif
+
+#define CONFIG_VIDEO_MXS
+
+#define CONFIG_CMD_BOOTMENU
+#define CONFIG_MENU
+#define CONFIG_CFB_CONSOLE_ANSI 
 
 #define CONFIG_MODULE_FUSE
 #define CONFIG_OF_SYSTEM_SETUP

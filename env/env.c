@@ -7,8 +7,10 @@
 
 #include <common.h>
 #include <environment.h>
+#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+extern void board_late_mmc_env_init(void);
 
 static struct env_driver *_env_driver_lookup(enum env_location loc)
 {
@@ -167,6 +169,10 @@ int env_load(void)
 {
 	struct env_driver *drv;
 	int prio;
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+        board_late_mmc_env_init();
+#endif
 
 	for (prio = 0; (drv = env_driver_lookup(ENVOP_LOAD, prio)); prio++) {
 		int ret;
